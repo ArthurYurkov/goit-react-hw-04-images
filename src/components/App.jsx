@@ -73,7 +73,18 @@ export default function App() {
   return (
     <>
       <SearchBar onSubmit={processSubmit} />
-      {error && <p>{error}</p>}
+      {error && (
+        <p
+          style={{
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: 30,
+            color: '#04061b',
+          }}
+        >
+          {error}
+        </p>
+      )}
       {pictures.length ? <ImageGallery images={pictures} /> : null}
       {showLoadMore && <Button onClick={handleLoadMore} />}
       {status === 'pending' && <Loader />}
