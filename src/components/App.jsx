@@ -1,87 +1,83 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { getResponse } from './Fetch/api';
-import Searchbar from './Searchbar/Searchbar';
+import SearchBar from './SearchBar/SearchBar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
 
-export default class App extends Component {
-  state = {
-    pictures: [],
-    error: '',
-    status: 'idle',
-    page: 1,
-    query: '',
-    totalHits: null,
-    showLoadMore: false,
-  };
+export default function App() {
+  const [pictures, setPictures] = useState([]);
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [totalHits, setTotalHits] = useState(null);
+  const [showLoadMore, setShowLoadMore] = useState(false);
+  const [isStateFound, setIsStateFound] = useState(false);
 
-  fetchImg = async () => {
-    try {
-      const response = await getResponse(this.state.query, this.state.page);
-      console.log(response.length);
-      if (response.length === 0) {
-        toast.error('Did find anything, mate');
-      }
-      const selectedProperties = response.map(
-        ({ id, largeImageURL, webformatURL }) => {
-          return { id, largeImageURL, webformatURL };
+  useEffect(() => {
+    const fetchImg = async () => {
+      try {
+        const response = await getResponse(query, page);
+        const selectedProperties = response.map(
+          ({ id, largeImageURL, webformatURL }) => {
+            return { id, largeImageURL, webformatURL };
+          }
+        );
+
+        setPictures(prev => [...prev, ...selectedProperties]);
+        setStatus('resolved');
+        setTotalHits(response.length);
+        console.log(response.length);
+        if (response.length === 0) {
+          setIsStateFound(true);
+
+          toast.error('Did find anything, mate');
         }
-      );
-      this.setState(prevState => {
-        return {
-          pictures: [...prevState.pictures, ...selectedProperties],
-          status: 'resolved',
-          totalHits: response.length,
-        };
-      });
-      if (response.length < 12) {
-        this.setState({ showLoadMore: false });
-      } else {
-        this.setState({ showLoadMore: true });
+        if (response.length < 12) {
+          setShowLoadMore(false);
+        } else {
+          setShowLoadMore(true);
+        }
+      } catch (error) {
+        setError(error.message);
+        console.log(error);
+        setStatus('rejected');
+        setShowLoadMore(false);
       }
-    } catch (error) {
-      this.setState({ error, status: 'rejected', showLoadMore: false });
+    };
+
+    if (query) {
+      fetchImg();
     }
+  }, [query, page]);
+
+  const processSubmit = event => {
+    if (query === event) {
+      return;
+    }
+    setQuery(event);
+    setPage(1);
+    setPictures([]);
+    setError(null);
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.query !== prevState.query) {
-      this.setState({ status: 'pending', pictures: [], page: 1 });
-      this.fetchImg();
-    }
-    if (
-      this.state.query === prevState.query &&
-      this.state.page !== prevState.page
-    ) {
-      this.setState({ status: 'pending' });
-      this.fetchImg();
-    }
-  }
-
-  processSubmit = query => {
-    this.setState({ query });
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => {
-      return { page: prevState.page + 1 };
-    });
-  };
-
-  render() {
-    const { pictures, status, showLoadMore } = this.state;
-    return (
-      <>
-        <Searchbar onSubmit={this.processSubmit} />
-        {pictures.length && <ImageGallery images={pictures} />}
-        {showLoadMore && <Button onClick={this.handleLoadMore} />}
-        {status === 'pending' && <Loader />}
-        <ToastContainer autoClose={2000} />
-      </>
-    );
-  }
+  return (
+    <>
+      <SearchBar onSubmit={processSubmit} />
+      {error && <p>{error}</p>}
+      {pictures.length ? <ImageGallery images={pictures} /> : null}
+      {showLoadMore && <Button onClick={handleLoadMore} />}
+      {status === 'pending' && <Loader />}
+      <ToastContainer autoClose={2000} />
+    </>
+  );
 }

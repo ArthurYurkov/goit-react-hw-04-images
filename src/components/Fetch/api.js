@@ -8,7 +8,7 @@ export const getResponse = async (query, page) => {
     `${URL_KEY}?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
   );
   if (response.data.hits.length === 0) {
-    throw new Error('error');
+    throw new Error('Nothing here(');
   }
   return response.data.hits;
 };
