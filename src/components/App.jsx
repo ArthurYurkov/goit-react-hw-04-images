@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { getResponse } from './Fetch/api';
-import SearchBar from './SearchBar/SearchBar';
+import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
@@ -15,9 +15,9 @@ export default function App() {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
-  const [totalHits, setTotalHits] = useState(null);
+  // const [totalHits, setTotalHits] = useState(null);
   const [showLoadMore, setShowLoadMore] = useState(false);
-  const [isStateFound, setIsStateFound] = useState(false);
+  // const [isStateFound, setIsStateFound] = useState(false);
 
   useEffect(() => {
     const fetchImg = async () => {
@@ -31,10 +31,10 @@ export default function App() {
 
         setPictures(prev => [...prev, ...selectedProperties]);
         setStatus('resolved');
-        setTotalHits(response.length);
-        console.log(response.length);
+        // setTotalHits(response.length);
+
         if (response.length === 0) {
-          setIsStateFound(true);
+          // setIsStateFound(true);
 
           toast.error('Did find anything, mate');
         }
@@ -71,7 +71,7 @@ export default function App() {
 
   return (
     <>
-      <SearchBar onSubmit={processSubmit} />
+      <Searchbar onSubmit={processSubmit} />
       {error && (
         <p
           style={{
