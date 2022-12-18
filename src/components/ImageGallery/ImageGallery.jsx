@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './styles.module.css';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import Modal from 'components/Modal/Modal';
-import { nanoid } from 'nanoid';
+
 import PropTypes from 'prop-types';
 
 export default function ImageGallery({ images }) {
@@ -22,7 +22,7 @@ export default function ImageGallery({ images }) {
         {images.map(img => {
           return (
             <ImageGalleryItem
-              key={nanoid()}
+              key={img.id}
               smallImgURL={img.webformatURL}
               id={img.id}
               onClick={openModal}
